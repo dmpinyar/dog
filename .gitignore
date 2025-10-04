@@ -1,0 +1,6 @@
+# Ignore the previous version folder
+prev_ver/
+
+# Ignore Python stuff in case it expands
+__pycache__/
+
