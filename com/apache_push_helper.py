@@ -45,6 +45,18 @@ if __name__ == "__main__":
 
     subprocess.run(['cp', '-r', '/home/devin/projects/dog/cgi-bin/.', '/usr/lib/cgi-bin/'])
 
-    if (len(sys.argv) > 1 and sys.argv[1] == '-g'):
-        # port 80 is defaulted with apache server
-        subprocess.run(['ngrok', 'http', '80'])
+    if (len(sys.argv) > 1 and sys.argv[1][0] == '-'):
+        if (sys.argv[1][1] == 'g'):
+            # port 80 is defaulted with apache server
+            subprocess.run(['ngrok', 'http', '80'])
+        elif (sys.argv[1][1:3] == 'bg'):
+            screen_name = "ngrok"
+            command = "ngrok http 80"
+
+            subprocess.run([
+                "screen",
+                "-dmS", screen_name,
+                "bash", "-c", command
+            ])
+            
+            print("running ngrok in the background on in screen ngrok on port 80")
