@@ -1,38 +1,62 @@
+"""
+Script Name: apache_push_helper.py
+
+Description:
+    Helps push files from a permanent, simple-to-navigate location in the file tree
+    to where Apache serves them. Also provides several auxiliary parameters for
+    managing the server environment.
+
+    aliased by appu='python3 /home/devin/projects/dog/com/apache_push_helper.py'
+
+Parameters:
+    g : Build the Grok server within the same terminal window.
+    b : Build the Grok server within a separate screen session.
+    r : Terminate any active screen sessions related to this script.
+    c : Attach to the screen session.
+    n : Skip pushing files (no-op if used alone).
+
+Notes:
+    - Parameters b, r, and c do not work well with g.
+    - Parameter n does nothing if no other parameters are selected.
+"""
+
 import subprocess
 import sys
 import os
 
-# aliased by appu='python3 /home/devin/projects/dog/com/apache_push_helper.py'
-
-### SCRIPT INFO ###
-# desc:
-# helps push files from a permanent, simple to navigate location in the filetree to where
-# apache deals with them. Has a bunch of side parameters for running the server as well
-# parameters:
-# g to build grok server within the same terminal window
-# b to build grok server within a different screen session
-# r to terminate any active screen sessions related to this script
-# c to load into the screen
-# n to opt out of pushing the files
-
-# b, r, and c don't play well with g
-# n just doesn't do anything if no other parameters are selected
-
 # for screen parameters this is the default name for the screen
 screen_name = "ngrok"
 
-# useful for checking if a .pl file needs to be converted to unix formatting so that we can still read
-# actual error logs in the instance we just automatically convert every file and have to pipe stderr,
-# unfortunately where dos2unix prints conversions, into /dev/null or whatever it is on ubuntu server
 def needs_dos2unix(path):
+    """
+    Determine whether a .pl file needs to be converted to Unix line endings.
+
+    Useful for checking if a .pl file needs to be converted to unix formatting 
+    so that we can still read # actual error logs in the instance we just 
+    automatically convert every file and have to pipe stderr, unfortunately where 
+    dos2unix prints conversions, into /dev/null or whatever it is on ubuntu server
+
+    Parameters:
+        path (str): The path to the .pl file to check.
+
+    Returns:
+        bool: True if the file contains Windows-style line endings and should
+        be converted with `dos2unix`; False otherwise.
+    """
+
     with open(path, "rb") as file:
         shebang = file.readline()
         if b'\r' in shebang:
             return True
     return False
 
-# turned into a method because the parameters I was passing in started getting really weird
 def push_changes():
+    """
+    Turned into a method because the parameters I was passing in started getting really weird
+
+    The primary function of the script
+    """
+
     print("pushing changes from permanent location to apache filetree...")
 
     # generate backups from previous version
@@ -64,6 +88,8 @@ def push_changes():
     subprocess.run(['cp', '-r', '/home/devin/projects/dog/cgi-bin/.', '/usr/lib/cgi-bin/'])
 
 if __name__ == "__main__":
+    # address all call parameters
+    
     if (len(sys.argv) > 1 and sys.argv[1][0] == '-'):
         if (sys.argv[1].find('n') < 0):
             push_changes()
