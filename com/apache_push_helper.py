@@ -88,10 +88,11 @@ def push_changes():
     subprocess.run(['find', '/usr/lib/cgi-bin', '-mindepth', '1', '-delete'])
 
     # push current version
-    print("compiling typescript files...")
-    subprocess.run(['tsc'])
+    # print("compiling typescript files...")
+    # subprocess.run(['tsc'])
     print("pushing changes from permanent location to apache filetree...")
-    subprocess.run(['cp', '-r', '/home/devin/projects/dog/src/.', '/var/www/html/'])
+    subprocess.run(['npx', 'vite', 'build'], cwd="/home/devin/projects/dog")
+    #subprocess.run(['cp', '-r', '/home/devin/projects/dog/src/.', '/var/www/html/'])
 
     # deal with perl file permissions and potential windows to unix conversion
     with os.scandir('/home/devin/projects/dog/cgi-bin') as entries:

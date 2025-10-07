@@ -1,12 +1,11 @@
 # Ignore the previous version folder
 prev_ver/
 
-# Ignore any ts -> js compiled scripts
-**/compiled-js-scripts/
-
 # Ignore typescript build info file
 .tsbuildinfo
 
 # Ignore Python stuff in case it expands
 __pycache__/
 
+# Ignore node modules
+node_modules/

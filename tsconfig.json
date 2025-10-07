@@ -3,7 +3,7 @@
   "compilerOptions": {
 
     // File Layout
-    "outDir": "./src/compiled-js-scripts",
+    //"outDir": "./src/vite-public/compiled-js-scripts",
     "incremental": true,
     "tsBuildInfoFile": "./.tsbuildinfo",
 
@@ -39,13 +39,18 @@
 
     // Recommended Options
     "strict": true,
-    // "jsx": "react-jsx",
+    "jsx": "react-jsx",
     // "verbatimModuleSyntax": true,
     // "isolatedModules": true,
+    "lib": ["DOM", "DOM.Iterable", "esnext"],
     "noUncheckedSideEffectImports": true,
     "moduleDetection": "force",
-    "skipLibCheck": true
-    // "noEmit": true
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "noEmit": true
   },
-  "include": ["ts-scripts/*"]
+  "include": ["src/**/*"],
+  "exclude": ["node_modules"]
 }
