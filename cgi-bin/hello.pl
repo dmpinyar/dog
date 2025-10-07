@@ -3,7 +3,7 @@
 # <body><h1>Hello from Perl CGI!</h1></body></html>";
 
 
-$title = "holy shit it's perl";
+$title = "holy poop it's perl";
 $background = "white";
 $font_size_or_something = 20;
 # print "Content-type: text/html", "\n\n";
@@ -31,7 +31,7 @@ print "Content-type: text/html", "\n\n";
 print << "DOC_END";
 <HTML><HEAD>\n
 <TITLE>$title</TITLE></HEAD>\n
-<h1>ITS FUCKING PERL HOLY SHIT</h1>\n
+<h1>ITS FLIPPING PERL HOLY POOP</h1>\n
 great googly moogly it works<br>\n
 and there's slightly better syntax too!<br><br>\n
 DOC_END
