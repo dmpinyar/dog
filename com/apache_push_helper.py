@@ -50,6 +50,20 @@ def needs_dos2unix(path):
             return True
     return False
 
+def attempt_screen_close():
+    """
+    Attempts to close any screens currently running the ngrok server
+    """
+    result = subprocess.run(['screen', '-ls'], capture_output=True, text=True)
+    if screen_name in result.stdout:
+        process = subprocess.run(['screen', '-X', '-S', screen_name, 'quit'], 
+                    capture_output=True, 
+                    text=True)
+        if (not process.stdout):
+            print(f"closing ngrok on screen: {screen_name}...")
+        else:
+            exit(f"error closing screen {screen_name}: {process.stdout}")
+
 def push_changes():
     """
     Turned into a method because the parameters I was passing in started getting really weird
@@ -95,26 +109,25 @@ if __name__ == "__main__":
             push_changes()
         if (sys.argv[1][1] == 'g'):
             # port 80 is defaulted with apache server
+            attempt_screen_close()
             subprocess.run(['ngrok', 'http', '80'])
         else:
             if (sys.argv[1].find('r') >= 0):
-                process = subprocess.run(['screen', '-X', '-S', 'ngrok', 'quit'], 
-                            capture_output=True, 
-                            text=True)
-                if (not process.stdout):
-                    print(f"closing ngrok on screen: {screen_name}...")
-            if (sys.argv[1].find('b') >= 0):
-                command = "ngrok http 80"
+                attempt_screen_close()
+            else:
+                if (sys.argv[1].find('b') >= 0):
+                    attempt_screen_close()
+                    command = "ngrok http 80"
 
-                subprocess.run([
-                    "screen",
-                    "-dmS", screen_name,
-                    "bash", "-c", command
-                ])
-                
-                print(f"forwarding apache server in the background on screen: {screen_name}...")
-            if (sys.argv[1].find('c') >= 0):
-                subprocess.run(["screen", "-r", screen_name])
+                    subprocess.run([
+                        "screen",
+                        "-dmS", screen_name,
+                        "bash", "-c", command
+                    ])
+                    
+                    print(f"forwarding apache server in the background on screen: {screen_name}...")
+                if (sys.argv[1].find('c') >= 0):
+                    subprocess.run(["screen", "-r", screen_name])
     else:
         push_changes()
         
