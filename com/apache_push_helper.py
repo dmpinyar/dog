@@ -72,8 +72,6 @@ def push_changes():
     The primary function of the script
     """
 
-    print("pushing changes from permanent location to apache filetree...")
-
     # generate backups from previous version
     # create backup directories
     subprocess.run(['mkdir', '-p', '/home/devin/projects/dog/prev_ver'])
@@ -90,6 +88,9 @@ def push_changes():
     subprocess.run(['find', '/usr/lib/cgi-bin', '-mindepth', '1', '-delete'])
 
     # push current version
+    print("compiling typescript files...")
+    subprocess.run(['tsc'])
+    print("pushing changes from permanent location to apache filetree...")
     subprocess.run(['cp', '-r', '/home/devin/projects/dog/src/.', '/var/www/html/'])
 
     # deal with perl file permissions and potential windows to unix conversion
