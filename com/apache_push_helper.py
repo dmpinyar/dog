@@ -13,6 +13,7 @@ Parameters:
     b : Build the Grok server within a separate screen session.
     c : Attach to the screen session.
     n : Skip pushing files.
+    r : Skip terminating existing screen sessions.
 
 Notes:
     - By default the script kills all relevant screens sessions.
@@ -92,6 +93,7 @@ def push_changes():
     # subprocess.run(['tsc'])
     print("pushing changes from permanent location to apache filetree...")
     subprocess.run(['npx', 'vite', 'build'], cwd="/home/devin/projects/dog")
+    subprocess.run(['cp', '/home/devin/projects/dog/.htaccess', '/var/www/html/'])
     #subprocess.run(['cp', '-r', '/home/devin/projects/dog/src/.', '/var/www/html/'])
 
     # deal with perl file permissions and potential windows to unix conversion
@@ -103,12 +105,15 @@ def push_changes():
                 subprocess.run(['chmod', '755', entry.path])
 
     subprocess.run(['cp', '-r', '/home/devin/projects/dog/cgi-bin/.', '/usr/lib/cgi-bin/'])
+    subprocess.run(['sudo', 'service', 'apache2', 'restart'])
 
 if __name__ == "__main__":
     # address all call parameters
-    attempt_screen_close()
+    
     
     if (len(sys.argv) > 1 and sys.argv[1][0] == '-'):
+        if (sys.argv[1].find('r') < 0):
+            attempt_screen_close()
         if (sys.argv[1].find('n') < 0):
             push_changes()
         if (sys.argv[1][1] == 'g'):
@@ -127,5 +132,6 @@ if __name__ == "__main__":
             if (sys.argv[1].find('c') >= 0):
                 subprocess.run(["screen", "-r", screen_name])
     else:
+        attempt_screen_close()
         push_changes()
         
