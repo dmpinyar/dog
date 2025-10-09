@@ -105,7 +105,7 @@ def push_changes():
                 subprocess.run(['chmod', '755', entry.path])
 
     subprocess.run(['cp', '-r', '/home/devin/projects/dog/cgi-bin/.', '/usr/lib/cgi-bin/'])
-    subprocess.run(['sudo', 'service', 'apache2', 'restart'])
+    #subprocess.run(['service', 'apache2', 'restart'])
 
 if __name__ == "__main__":
     # address all call parameters

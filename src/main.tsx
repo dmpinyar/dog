@@ -1,19 +1,15 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import About from './About';
-import App from './App';
+import Index from './tsx-files/oldindex';
+// import App from './tsx-files/App';
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<App />} />
-        <Route path="/about" element={<About />} />
+        <Route path="/" element={<Index />} />
       </Routes>
     </BrowserRouter>
   </React.StrictMode>
 );
-// ReactDOM.createRoot(document.getElementById('root')!).render(
-//   <h1>Hello World</h1>
-// );

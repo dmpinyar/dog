@@ -16,8 +16,6 @@ Type=forking
 User=devin
 WorkingDirectory=/home/devin
 ExecStart=/usr/bin/python3 /home/devin/projects/dog/com/website_boot.py      
-Restart=always
-RestartSec=10
 
 [Install]
 WantedBy=multi-user.target
