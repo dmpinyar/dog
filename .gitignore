@@ -11,5 +11,5 @@ __pycache__/
 node_modules/
 
 # ignore passage-lock
-passage-lock/
+passage-lock.json
 
