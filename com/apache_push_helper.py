@@ -17,7 +17,7 @@ Parameters:
 
 Notes:
     - By default the script kills all relevant screens sessions.
-    - Parameters b and c do not work well with g.
+    - Parameters b and c do not play well with g.
 """
 
 import subprocess
@@ -36,6 +36,9 @@ def needs_dos2unix(path):
     so that we can still read # actual error logs in the instance we just 
     automatically convert every file and have to pipe stderr, unfortunately where 
     dos2unix prints conversions, into /dev/null or whatever it is on ubuntu server
+
+    I recently learned I can do all of this with a .sh file, but I personally love my 
+    legacy code, so we're just gonna keep it.
 
     Parameters:
         path (str): The path to the .pl file to check.
@@ -74,27 +77,20 @@ def push_changes():
     """
 
     # generate backups from previous version
-    # create backup directories
     subprocess.run(['mkdir', '-p', '/home/devin/projects/dog/prev_ver'])
     subprocess.run(['rm', '-rf', '/home/devin/projects/dog/prev_ver/src'])
     subprocess.run(['rm', '-rf', '/home/devin/projects/dog/prev_ver/cgi-bin'])
     subprocess.run(['mkdir', '/home/devin/projects/dog/prev_ver/src'])
     subprocess.run(['mkdir', '/home/devin/projects/dog/prev_ver/cgi-bin'])
-    # copy over the files
     subprocess.run(['cp', '-r', '/var/www/html/.', '/home/devin/projects/dog/prev_ver/src/'])
     subprocess.run(['cp', '-r', '/usr/lib/cgi-bin/.', '/home/devin/projects/dog/prev_ver/cgi-bin'])
 
     # remove previous version
-    subprocess.run(['find', '/var/www/html', '-mindepth', '1', '-delete'])
     subprocess.run(['find', '/usr/lib/cgi-bin', '-mindepth', '1', '-delete'])
 
-    # push current version
-    # print("compiling typescript files...")
-    # subprocess.run(['tsc'])
     print("pushing changes from permanent location to apache filetree...")
     subprocess.run(['npx', 'vite', 'build'], cwd="/home/devin/projects/dog")
     subprocess.run(['cp', '/home/devin/projects/dog/.htaccess', '/var/www/html/'])
-    #subprocess.run(['cp', '-r', '/home/devin/projects/dog/src/.', '/var/www/html/'])
 
     # deal with perl file permissions and potential windows to unix conversion
     with os.scandir('/home/devin/projects/dog/cgi-bin') as entries:
@@ -105,12 +101,9 @@ def push_changes():
                 subprocess.run(['chmod', '755', entry.path])
 
     subprocess.run(['cp', '-r', '/home/devin/projects/dog/cgi-bin/.', '/usr/lib/cgi-bin/'])
-    #subprocess.run(['service', 'apache2', 'restart'])
 
 if __name__ == "__main__":
     # address all call parameters
-    
-    
     if (len(sys.argv) > 1 and sys.argv[1][0] == '-'):
         if (sys.argv[1].find('r') < 0):
             attempt_screen_close()
