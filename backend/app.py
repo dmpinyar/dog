@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from routers import horse_race
+from routers import horse_race, horse_instant
 
 app = FastAPI()
 
@@ -14,3 +14,4 @@ app.add_middleware(
 )
 
 app.include_router(horse_race.router)
+app.include_router(horse_instant.router)
