@@ -2,7 +2,12 @@ import { useState, useEffect } from "react";
 import { getUsers, createUser } from "../api/users";
 
 export default function App() {
-  const [users, setUsers] = useState([]);
+  interface Users {
+    id: number
+    name: string
+  }
+
+  const [users, setUsers] = useState<Users[]>([]);
   const [name, setName] = useState("");
 
   useEffect(() => {

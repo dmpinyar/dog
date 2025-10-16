@@ -1,4 +1,4 @@
-const API_BASE = "/api/users"; // proxied through Apache
+const API_BASE = "/api/users/"; 
 
 export async function getUsers() {
   const res = await fetch(API_BASE);
