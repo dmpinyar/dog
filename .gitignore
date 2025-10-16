@@ -10,6 +10,6 @@ __pycache__/
 # Ignore node modules
 node_modules/
 
-# ignore passage-lock
-passage-lock.json
+# ignore package-lock
+package-lock.json
 
