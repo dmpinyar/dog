@@ -28,7 +28,7 @@ sudo systemctl start website_boot.service
 ### run "sudo systemctl status sudo systemctl status website_boot.service" to verify ###
 """
 
-import subprocess
+import apache_push_helper
 
 # name of the screen session
 # should probably be stored in another file just cause it's used by both scripts but whatever
@@ -36,9 +36,4 @@ screen_name = "ngrok"
 
 if __name__ == "__main__":
     # Launch a detached screen session running the ngrok on boot
-    command = "ngrok http 80"
-    subprocess.run([
-        "screen",
-        "-dmS", screen_name,
-        "bash", "-c", command
-    ])
+    apache_push_helper.screen_initialization()

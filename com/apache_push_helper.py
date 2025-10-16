@@ -9,15 +9,12 @@ Description:
     aliased by appu='python3 /home/devin/projects/dog/com/apache_push_helper.py'
 
 Parameters:
-    g : Build the Grok server within the same terminal window.
-    b : Build the Grok server within a separate screen session.
-    c : Attach to the screen session.
-    n : Skip pushing files.
-    r : Skip terminating existing screen sessions.
+    c : Attach to the frontend screen session.
+    a : Attach to the backend screen session.
 
 Notes:
-    - By default the script kills all relevant screens sessions.
-    - Parameters b and c do not play well with g.
+    - The script kills all relevant screens sessions.
+    - Could be more optimized for target rebooting, but on this scale it shouldn't matter
 """
 
 import subprocess
@@ -25,8 +22,12 @@ import sys
 import os
 import re
 
-# for screen parameters this is the default name for the screen
-screen_name = "ngrok"
+FRONTEND_SCREEN_NAME = "NGROK"
+BACKEND_SCREEN_NAME = "API"
+API_PORT = "8000"
+APACHE_PORT = "80"
+FRONTEND_RUN_COMMAND = "ngrok http 80"
+BACKEND_RUN_COMMAND = f"uvicorn app:app --host 127.0.0.1 --port {API_PORT}"
 
 def needs_dos2unix(path):
     """
@@ -54,20 +55,44 @@ def needs_dos2unix(path):
             return True
     return False
 
+def attempt_screen_close_helper(screen_name, line):
+    match = re.match(rf"\s*(\d+)\.{re.escape(screen_name)}", line)
+    if match:
+        pid = match.group(1)
+        subprocess.run(['screen', '-X', '-S', pid, 'quit'])
+        print(f"closing {screen_name} on screen: {pid}...")
+        return True
+    return False
+
+
 def attempt_screen_close():
     """
-    Attempts to close any screens currently running the ngrok server
+    Attempts to close any screens currently running the ngrok server or local api
     """
 
     result = subprocess.run(['screen', '-ls'], capture_output=True, text=True)
 
     for line in result.stdout.splitlines():
-        match = re.match(rf"\s*(\d+)\.{re.escape(screen_name)}", line)
-        if match:
-            pid = match.group(1)
-            subprocess.run(['screen', '-X', '-S', pid, 'quit'])
-            print(f"closing ngrok on screen: {pid}...")
-    
+        if not attempt_screen_close_helper(BACKEND_SCREEN_NAME, line):
+            attempt_screen_close_helper(FRONTEND_SCREEN_NAME, line)
+
+def screen_init_helper(name, command, path):
+    subprocess.run([
+        "screen",
+        "-dmS", name,
+        "bash", "-c", command
+    ], cwd=path)
+
+
+    print(f"running api in the background on screen: {name}...")
+
+def screen_initialization():
+    """
+    Creates the instances of relevant screens in one method
+    """
+
+    screen_init_helper(BACKEND_SCREEN_NAME, BACKEND_RUN_COMMAND, "/home/devin/projects/dog/backend")
+    screen_init_helper(FRONTEND_SCREEN_NAME, FRONTEND_RUN_COMMAND, "/home/devin/projects/dog/frontend")
 
 def push_changes():
     """
@@ -89,8 +114,7 @@ def push_changes():
     subprocess.run(['find', '/usr/lib/cgi-bin', '-mindepth', '1', '-delete'])
 
     print("pushing changes from permanent location to apache filetree...")
-    subprocess.run(['npx', 'vite', 'build'], cwd="/home/devin/projects/dog")
-    subprocess.run(['cp', '/home/devin/projects/dog/.htaccess', '/var/www/html/'])
+    subprocess.run(['npx', 'vite', 'build'], cwd="/home/devin/projects/dog/frontend")
 
     # deal with perl file permissions and potential windows to unix conversion
     with os.scandir('/home/devin/projects/dog/cgi-bin') as entries:
@@ -102,28 +126,17 @@ def push_changes():
 
     subprocess.run(['cp', '-r', '/home/devin/projects/dog/cgi-bin/.', '/usr/lib/cgi-bin/'])
 
+    # rebuild 
+    attempt_screen_close()
+    screen_initialization()
+
 if __name__ == "__main__":
     # address all call parameters
-    if (len(sys.argv) > 1 and sys.argv[1][0] == '-'):
-        if (sys.argv[1].find('r') < 0):
-            attempt_screen_close()
-        if (sys.argv[1].find('n') < 0):
-            push_changes()
-        if (sys.argv[1][1] == 'g'):
-            # port 80 is defaulted with apache server
-            subprocess.run(['ngrok', 'http', '80'])
-        else:
-            if (sys.argv[1].find('b') >= 0):
-                command = "ngrok http 80"
-                subprocess.run([
-                    "screen",
-                    "-dmS", screen_name,
-                    "bash", "-c", command
-                ])
-                    
-                print(f"forwarding apache server in the background on screen: {screen_name}...")
-            if (sys.argv[1].find('c') >= 0):
-                subprocess.run(["screen", "-r", screen_name])
+    if (len(sys.argv) > 1 and sys.argv[1][0] == '-'):   
+        if (sys.argv[1].find('c') >= 0):
+            subprocess.run(["screen", "-r", FRONTEND_SCREEN_NAME])
+        elif (sys.argv[1].find('a') >= 0):
+            subprocess.run(["screen", "-r", BACKEND_SCREEN_NAME])
     else:
         attempt_screen_close()
         push_changes()
