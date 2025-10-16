@@ -72,7 +72,7 @@ export default function App() {
 
 
   return (
-    <body style={{background: "#d2b48c"}}>
+    <body style={{background: "#d2b48c", color: "#000000"}}>
       <div
         style={{
           display: "flex",       
