@@ -1,45 +1,32 @@
 import { useState, useEffect } from "react";
-import { getUsers, createUser } from "../api/users";
+import { getProgress } from "../api/horse_race";
 
 export default function App() {
-  interface Users {
-    id: number
-    name: string
+  interface prog {
+    active: boolean;
+    year: number;
+    month: number;
+    day: number;
   }
 
-  const [users, setUsers] = useState<Users[]>([]);
-  const [name, setName] = useState("");
+  const [prog, setProg] = useState<prog | null>(null);
 
   useEffect(() => {
-    getUsers().then(setUsers);
+    const fetchProgress = async () => {
+      const data = await getProgress();
+      if (JSON.stringify(data) !== JSON.stringify(prog)) {
+        setProg(data);
+      }
+    }
+
+    fetchProgress();
+    const interval = setInterval(fetchProgress, 10000); // in milliseconds
+    return () => clearInterval(interval);
   }, []);
 
-  const handleAddUser = async () => {
-    if (!name.trim()) return;
-    const newUser = await createUser({ name });
-    setUsers([...users, newUser]);
-    setName("");
-  };
-
   return (
-    <div className="p-8">
-      <h1 className="text-2xl font-bold">User Manager</h1>
-      <input
-        className="border p-2 mr-2"
-        value={name}
-        onChange={(e) => setName(e.target.value)}
-        placeholder="Enter user name"
-      />
-      <button className="bg-blue-500 text-white px-3 py-2 rounded" onClick={handleAddUser}>
-        Add User
-      </button>
-
-      <ul className="mt-4">
-        {users.map((u: any) => (
-          <li key={u.id}>{u.name}</li>
-        ))}
-      </ul>
-    </div>
+    <>{prog ? (<p>{prog.month}/{prog.day}/{prog.year}</p>) : (<p>Loading...</p>)}</>
   );
+
 }
 

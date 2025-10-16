@@ -35,5 +35,4 @@ import apache_push_helper
 screen_name = "ngrok"
 
 if __name__ == "__main__":
-    # Launch a detached screen session running the ngrok on boot
     apache_push_helper.screen_initialization()

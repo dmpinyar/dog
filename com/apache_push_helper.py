@@ -23,7 +23,7 @@ import os
 import re
 
 FRONTEND_SCREEN_NAME = "NGROK"
-BACKEND_SCREEN_NAME = "API"
+BACKEND_SCREEN_NAME = "UVICORN"
 API_PORT = "8000"
 APACHE_PORT = "80"
 FRONTEND_RUN_COMMAND = "ngrok http 80"
@@ -84,7 +84,7 @@ def screen_init_helper(name, command, path):
     ], cwd=path)
 
 
-    print(f"running api in the background on screen: {name}...")
+    print(f"running process in the background on screen: {name}...")
 
 def screen_initialization():
     """
