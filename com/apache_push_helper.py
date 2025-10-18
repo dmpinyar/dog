@@ -21,12 +21,19 @@ import subprocess
 import sys
 import os
 import re
+from dotenv import load_dotenv
+
+# resolve enviornmental variables
+load_dotenv("../.env")
+API_PORT = os.getenv("API_PORT")
+APACHE_PORT = os.getenv("APACHE_PORT")
+DOG_DIRECTORY_PATH = os.getenv("DOG_DIRECTORY_PATH")
+APACHE_DIRECTORY_PATH = os.getenv("APACHE_DIRECTORY_PATH")
+APACHE_CGI_BIN_PATH = os.getenv("APACHE_CGI_BIN_PATH")
 
 FRONTEND_SCREEN_NAME = "NGROK"
 BACKEND_SCREEN_NAME = "UVICORN"
-API_PORT = "8000"
-APACHE_PORT = "80"
-FRONTEND_RUN_COMMAND = "ngrok http 80"
+FRONTEND_RUN_COMMAND = f"ngrok http {APACHE_PORT}"
 BACKEND_RUN_COMMAND = f"uvicorn app:app --host 127.0.0.1 --port {API_PORT}"
 
 def needs_dos2unix(path):
@@ -91,8 +98,8 @@ def screen_initialization():
     Creates the instances of relevant screens in one method
     """
 
-    screen_init_helper(BACKEND_SCREEN_NAME, BACKEND_RUN_COMMAND, "/home/devin/projects/dog/backend")
-    screen_init_helper(FRONTEND_SCREEN_NAME, FRONTEND_RUN_COMMAND, "/home/devin/projects/dog/frontend")
+    screen_init_helper(BACKEND_SCREEN_NAME, BACKEND_RUN_COMMAND, f"{DOG_DIRECTORY_PATH}/backend")
+    screen_init_helper(FRONTEND_SCREEN_NAME, FRONTEND_RUN_COMMAND, f"{DOG_DIRECTORY_PATH}/frontend")
 
 def push_changes():
     """
@@ -101,30 +108,21 @@ def push_changes():
     The primary function of the script
     """
 
-    # generate backups from previous version
-    subprocess.run(['mkdir', '-p', '/home/devin/projects/dog/prev_ver'])
-    subprocess.run(['rm', '-rf', '/home/devin/projects/dog/prev_ver/src'])
-    subprocess.run(['rm', '-rf', '/home/devin/projects/dog/prev_ver/cgi-bin'])
-    subprocess.run(['mkdir', '/home/devin/projects/dog/prev_ver/src'])
-    subprocess.run(['mkdir', '/home/devin/projects/dog/prev_ver/cgi-bin'])
-    subprocess.run(['cp', '-r', '/var/www/html/.', '/home/devin/projects/dog/prev_ver/src/'])
-    subprocess.run(['cp', '-r', '/usr/lib/cgi-bin/.', '/home/devin/projects/dog/prev_ver/cgi-bin'])
-
     # remove previous version
-    subprocess.run(['find', '/usr/lib/cgi-bin', '-mindepth', '1', '-delete'])
+    subprocess.run(['find', APACHE_CGI_BIN_PATH, '-mindepth', '1', '-delete'])
 
     print("pushing changes from permanent location to apache filetree...")
-    subprocess.run(['npx', 'vite', 'build'], cwd="/home/devin/projects/dog/frontend")
+    subprocess.run(['npx', 'vite', 'build'], cwd=f"{DOG_DIRECTORY_PATH}/frontend")
 
     # deal with perl file permissions and potential windows to unix conversion
-    with os.scandir('/home/devin/projects/dog/cgi-bin') as entries:
+    with os.scandir(f"{DOG_DIRECTORY_PATH}/cgi-bin") as entries:
         for entry in entries:
             if entry.is_file() and entry.name.endswith(".pl"):
                 if (needs_dos2unix(entry.path)):
                     subprocess.run(['dos2unix', entry.path])
                 subprocess.run(['chmod', '755', entry.path])
 
-    subprocess.run(['cp', '-r', '/home/devin/projects/dog/cgi-bin/.', '/usr/lib/cgi-bin/'])
+    subprocess.run(['cp', '-r', f"{DOG_DIRECTORY_PATH}/cgi-bin/.", APACHE_CGI_BIN_PATH])
 
     # rebuild 
     attempt_screen_close()

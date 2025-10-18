@@ -30,9 +30,5 @@ sudo systemctl start website_boot.service
 
 import apache_push_helper
 
-# name of the screen session
-# should probably be stored in another file just cause it's used by both scripts but whatever
-screen_name = "ngrok"
-
 if __name__ == "__main__":
     apache_push_helper.screen_initialization()
